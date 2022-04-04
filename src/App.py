@@ -25,7 +25,7 @@ class Application(tk.Tk):
         # Data Setup
         self.dailyEntries = utilities.get_daily_entries()
         if (self.settings == {}):
-            self.settings = utilities.read_json("defaultSettings.json", {}, directoryPath = "src\\")
+            self.settings = utilities.read_json("defaultSettings.json", {}, directoryPath = utilities.projectDir + "\\src\\")
             self.settings['startDate'] = utilities.dt.date.today().strftime(r"%d/%m/%Y")
             utilities.save_settings(self.settings)
         
