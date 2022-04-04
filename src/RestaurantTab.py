@@ -115,7 +115,7 @@ class RestaurantTree(ttk.Frame):
         self.treeview_restCount = ttk.Treeview(
             self,
             columns = list(treeviewHeaders.keys()),
-            height = 27,
+            height = 20,
             show = "headings"
         )
         self.treeview_restCount.column("#0", width = 50)
@@ -124,6 +124,10 @@ class RestaurantTree(ttk.Frame):
             self.treeview_restCount.column(header, width = columnWidth)
         self.treeview_restCount.bind("<Expose>", self.add_restaurants_to_tree)
         self.treeview_restCount.grid(row = 0, column = 0, **gridSettings)
+
+        self.scrollbar = ttk.Scrollbar(self, orient = tk.VERTICAL, command = self.treeview_restCount.yview)
+        self.scrollbar.grid(row = 0, column = 1, sticky = "NS")
+        self.treeview_restCount.configure(yscrollcommand = self.scrollbar.set)
     
         self.add_restaurants_to_tree()
     
