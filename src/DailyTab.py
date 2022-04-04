@@ -94,7 +94,7 @@ class DailyTab(ttk.Frame):
                 "Breakfast" : {'items' : [], 'establishment' : "NONE"},
                 "Lunch" : {'items' : [], 'establishment' : "NONE"},
                 "Dinner" : {'items' : [], 'establishment' : "NONE"},
-                "Snacks" : {'items' : [], 'establishment' : "NONE"}
+                "Snacks" : {'items' : []}
             }
             utilities.save_daily_entries(dailyEntries)
 
@@ -105,10 +105,11 @@ class DailyTab(ttk.Frame):
             mealFrame.text_itemBox.delete(0.0, tk.END)
             mealFrame.text_itemBox.insert(0.0, '\n'.join(dailyEntry[meal]['items']))
 
-            if (dailyEntry[meal]['establishment'] == "NONE"):
-                mealFrame.combo_restaurant.set("Home")
-            else:
-                mealFrame.combo_restaurant.set(dailyEntry[meal]['establishment'])
+            if (meal != "Snacks"):
+                if (dailyEntry[meal]['establishment'] == "NONE"):
+                    mealFrame.combo_restaurant.set("Home")
+                else:
+                    mealFrame.combo_restaurant.set(dailyEntry[meal]['establishment'])
 
             mealFrame.validate_items()
     
@@ -130,19 +131,20 @@ class MealFrame(ttk.Frame):
         self.refresh_saved_info()
 
         self.label_title = ttk.Label(self, text = labelText, font = self.settings['fonts']['bold'])
-        self.label_title.grid(row = 0, column = 0, **gridSettings)
+        if (self.labelText != "Snacks"):
+            self.label_title.grid(row = 0, column = 0, **gridSettings)
+        else:
+            self.label_title.grid(row = 0, column = 0, sticky = "w", padx = gridSettings['padx'], pady = gridSettings['pady'] + 8)
 
-        self.combo_restaurant = ttk.Combobox(
-            self, 
-            font = self.settings['fonts']['default'], 
-            values = utilities.title_string_array(self.restaurantInfo.keys()),
-            state= "readonly"
-        )
-        self.combo_restaurant.set("Home")
-        self.combo_restaurant.grid(row = 0, column = 1, **gridSettings)
-
-        self.label_state = ttk.Label(self, text = "EMPTY", font = self.settings['fonts']['default'])
-        self.label_state.grid(row = 0, column = 2, **gridSettings)
+        if (labelText != "Snacks"):
+            self.combo_restaurant = ttk.Combobox(
+                self, 
+                font = self.settings['fonts']['default'], 
+                values = utilities.title_string_array(self.restaurantInfo.keys()),
+                state= "readonly"
+            )
+            self.combo_restaurant.set("Home")
+            self.combo_restaurant.grid(row = 0, column = 1, **gridSettings)
 
         self.text_itemBox = tk.Text(self, height = 17, width = 105, foreground = "#DD5555")
         self.text_itemBox.bind("<Any-KeyRelease>", self.validate_items)
@@ -159,9 +161,10 @@ class MealFrame(ttk.Frame):
     def get_meal_data(self):
         text = self.text_itemBox.get(0.0, tk.END)
         entry = {
-            'items' : [item for item in text.splitlines() if item.isspace() == False and item != ""],
-            'establishment' : self.combo_restaurant.get()
+            'items' : [item for item in text.splitlines() if item.isspace() == False and item != ""]
         }
+        if (self.labelText != "Snacks"):
+            entry['establishment'] = self.combo_restaurant.get()
         return entry
 
     def validate_items(self, event = None):
@@ -228,11 +231,9 @@ class MealFrame(ttk.Frame):
         else:
             self.state = "INVALID"
         
-        
         if (text == "" or text.isspace() == True):
             self.state = "BLANK"
         
-        self.label_state.configure(text = self.state)
         self.parent.set_spinbox_state()
         
     def get_item_count(self, mealData):
@@ -256,7 +257,7 @@ class MealFrame(ttk.Frame):
         for key, value in previousItemCount.items():
                 self.itemInfo[key]['count'] -= value
         
-        if (previousEntry['establishment'] != "NONE" and "skipped_meal" not in previousEntry['items']):
+        if (self.labelText != "Snacks" and previousEntry['establishment'] != "NONE" and "skipped_meal" not in previousEntry['items']):
             self.restaurantInfo[previousEntry['establishment'].lower()]['count'] -= 1
         
         # Adding Current Count
@@ -266,7 +267,7 @@ class MealFrame(ttk.Frame):
         for key, value in currentItemCount.items():
             self.itemInfo[key]['count'] += value
         
-        if ("skipped_meal" not in currentEntry['items']):
+        if (self.labelText != "Snacks" and "skipped_meal" not in currentEntry['items']):
             self.restaurantInfo[self.combo_restaurant.get().lower()]['count'] += 1
             
         utilities.save_item_info(self.itemInfo)
