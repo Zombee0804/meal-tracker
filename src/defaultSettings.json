@@ -1,0 +1,10 @@
+{
+    "fonts" : {
+        "default" : ["Segoe Ui", 12],
+        "bold" : ["Segoe Ui bold", 12]
+    },
+    "padding" : {
+        "padx": 5,
+        "pady": 5
+    }
+}

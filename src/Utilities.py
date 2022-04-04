@@ -30,24 +30,25 @@ get_restaurant_info = lambda: read_json("restaurantInfo.json", {"home" : {"count
 save_restaurant_info = lambda restaurantInfo: write_json("restaurantInfo.json", restaurantInfo)
 
 # Methods
-def read_json(fileName, fillerContents = None):
-    filePath = filesDir + fileName
+def read_json(fileName, fillerContents = None, directoryPath = filesDir):
+    filePath = directoryPath + fileName
     try:
         with open(filePath, 'r') as fileReader:
             fileContents = json.load(fileReader)
     except FileNotFoundError:
         fileContents = fillerContents
-        write_json(fileName, fileContents)
+        write_json(fileName, fileContents, directoryPath)
 
     return fileContents
 
-def write_json(fileName, fileContents):
-    filePath = filesDir + fileName
+def write_json(fileName, fileContents, directoryPath = filesDir):
+    filePath = directoryPath + fileName
 
-    try:
-        os.mkdir(filesDir)
-    except FileExistsError:
-        pass
+    if (directoryPath != "" and directoryPath.isspace() == False):
+        try:
+            os.mkdir(directoryPath)
+        except FileExistsError:
+            pass
 
     with open(filePath, 'w+') as fileWriter:
         json.dump(fileContents, fileWriter)

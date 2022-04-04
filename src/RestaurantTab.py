@@ -25,15 +25,28 @@ class RestaurantTab(ttk.Frame):
         self.entry_name = ttk.Entry(self.frame_newRestaurant, font = self.settings['fonts']['default'], width = 75)
         self.entry_name.grid(row = 1, column = 0, **gridSettings)
 
+        self.label_rating = ttk.Label(self.frame_newRestaurant, text = "Rating:", font = self.settings['fonts']['bold'])
+        self.label_rating.grid(row = 0, column = 1, **gridSettings)
+
+        self.spinbox_rating = ttk.Spinbox(
+            self.frame_newRestaurant, 
+            state = "READONLY", 
+            values = ["Very Bad", "Bad", "Okay", "Good", "Very Good", "Outstanding"], 
+            wrap = True, 
+            font = self.settings['fonts']['default']
+        )
+        self.spinbox_rating.set("Okay")
+        self.spinbox_rating.grid(row = 1, column = 1, **gridSettings)
+
         self.label_startingCount = ttk.Label(self.frame_newRestaurant, text = "Starting Count:", font = self.settings['fonts']['bold'])
-        self.label_startingCount.grid(row = 0, column = 1, **gridSettings)
+        self.label_startingCount.grid(row = 0, column = 2, **gridSettings)
     
         self.spinbox_startingCount = ttk.Spinbox(self.frame_newRestaurant, from_ = 0, to = 999, font = self.settings['fonts']['default'])
         self.spinbox_startingCount.set(0)
-        self.spinbox_startingCount.grid(row = 1, column = 1, **gridSettings)
+        self.spinbox_startingCount.grid(row = 1, column = 2, **gridSettings)
 
         self.button_submit = ttk.Button(self.frame_newRestaurant, text = "Submit", style = "Accent.TButton", command = self.submit_new_restaurant)
-        self.button_submit.grid(row = 1, column = 2, **gridSettings)
+        self.button_submit.grid(row = 1, column = 3, **gridSettings)
 
         # Restaurant Count Frame
         self.frame_restCount = ttk.Frame(self)
@@ -52,6 +65,7 @@ class RestaurantTab(ttk.Frame):
     def get_new_restaurant_info(self):
         restName = self.entry_name.get()
         restInfo = {
+            "rating" : self.spinbox_rating.get(),
             "count" : int(self.spinbox_startingCount.get()),
             "startingCount" : int(self.spinbox_startingCount.get())
         }
@@ -80,6 +94,7 @@ class RestaurantTab(ttk.Frame):
     
     def clear_restaurant_input(self):
         self.entry_name.delete(0, tk.END)
+        self.spinbox_rating.set("Okay")
         self.spinbox_startingCount.set(0)
 
 class RestaurantTree(ttk.Frame):
@@ -91,7 +106,9 @@ class RestaurantTree(ttk.Frame):
         self.refresh_saved_info()
 
         treeviewHeaders = {
+            "Index" : 50,
             "Name" : 250,
+            "Rating" : 200,
             "Count" : 100
         }
 
@@ -125,5 +142,5 @@ class RestaurantTree(ttk.Frame):
             if (self.treeview_restCount.exists(restName.lower())):
                 self.treeview_restCount.delete(restName.lower())
 
-            restValues = [restName.title(), restInfo['count']]
+            restValues = [sortedRest.index((restName, restInfo)) + 1, restName.title(), restInfo['rating'], restInfo['count']]
             self.treeview_restCount.insert(parent = "", index = "end", iid = restName.lower(), values = restValues)
