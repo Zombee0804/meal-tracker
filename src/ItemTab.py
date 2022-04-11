@@ -33,6 +33,7 @@ class ItemTab(ttk.Frame):
         self.frame_itemType.grid(row = 1, column = 1, **gridSettings)
 
         self.var_itemType = tk.StringVar()
+        self.var_itemType.set("food")
         self.radio_food = ttk.Radiobutton(self.frame_itemType, text = "Food", variable = self.var_itemType, value = "food")
         self.radio_food.grid(row = 0, column = 0, **gridSettings)
 
@@ -121,7 +122,6 @@ class ItemTab(ttk.Frame):
     
     def clear_item_input(self):
         self.entry_name.delete(0, tk.END)
-        self.var_itemType.set("")
         self.spinbox_rating.set("Okay")
         self.spinbox_startingCount.set(0)
 
@@ -136,7 +136,7 @@ class ItemTree(ttk.Frame):
 
         treeviewHeaders = {
             "Index" : 50,
-            "Name" : 250, 
+            "Name" : 300, 
             "Rating" : 200, 
             "Count" : 100
         }
