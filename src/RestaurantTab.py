@@ -140,7 +140,8 @@ class RestaurantTree(ttk.Frame):
     def add_restaurants_to_tree(self, event = None):
         self.refresh_saved_info()
     
-        sortedRest = sorted(self.restaurantInfo.items(), key = lambda x:x[1]['count'], reverse = True)
+        alphaSorted = sorted(self.restaurantInfo.items(), key = lambda x:x[0], reverse = False)
+        sortedRest = sorted(alphaSorted, key = lambda x:x[1]['count'], reverse = True)
     
         for restName, restInfo in sortedRest:
             if (self.treeview_restCount.exists(restName.lower())):

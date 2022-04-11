@@ -167,7 +167,8 @@ class ItemTree(ttk.Frame):
     
     def add_items_to_tree(self, event = None):
         self.refresh_saved_info()
-        sortedItems = sorted(self.itemInfo.items(), key = lambda x:x[1]['count'], reverse = True)
+        alphaSorted = sorted(self.itemInfo.items(), key = lambda x:x[0], reverse = False)
+        sortedItems = sorted(alphaSorted, key = lambda x:x[1]['count'], reverse = True)
 
         for itemName, itemInfo in sortedItems:
             if (self.treeview_itemCount.exists(itemName.lower())):
