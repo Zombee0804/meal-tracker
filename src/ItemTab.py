@@ -133,6 +133,23 @@ class ItemTree(ttk.Frame):
         self.itemType = itemType
 
         self.refresh_saved_info()
+        self.searchQuery = None
+
+        #region Search Bar
+        self.frame_search = ttk.Frame(self)
+        self.frame_search.grid(row = 0, column = 0, **gridSettings)
+
+        self.label_search = ttk.Label(self.frame_search, text = "Search:", font = self.settings['fonts']['bold'])
+        self.label_search.grid(row = 0, column = 0, **gridSettings)
+
+        self.entry_query = ttk.Entry(self.frame_search, font = self.settings['fonts']['default'], width = 69)
+        self.entry_query.bind("<Any-KeyRelease>", self.submit_search_query)
+        self.entry_query.grid(row = 0, column = 1, **gridSettings)
+        #endregion
+
+        #region Treeview
+        self.frame_tree = ttk.Frame(self)
+        self.frame_tree.grid(row = 1, column = 0, **gridSettings)
 
         treeviewHeaders = {
             "Index" : 50,
@@ -141,7 +158,7 @@ class ItemTree(ttk.Frame):
             "Count" : 100
         }
         self.treeview_itemCount = ttk.Treeview(
-            self, 
+            self.frame_tree, 
             columns = list(treeviewHeaders.keys()), 
             height = 20,
             show = "headings"
@@ -153,11 +170,12 @@ class ItemTree(ttk.Frame):
         self.treeview_itemCount.bind("<Expose>", self.add_items_to_tree)
         self.treeview_itemCount.grid(row = 0, column = 0, **gridSettings)
 
-        self.scrollbar = ttk.Scrollbar(self, orient = tk.VERTICAL, command = self.treeview_itemCount.yview)
+        self.scrollbar = ttk.Scrollbar(self.frame_tree, orient = tk.VERTICAL, command = self.treeview_itemCount.yview)
         self.scrollbar.grid(row = 0, column = 1, sticky = "NS")
         self.treeview_itemCount.configure(yscrollcommand = self.scrollbar.set)
 
         self.add_items_to_tree()
+        #endregion
 
     def refresh_saved_info(self):
         self.dailyEntries = utilities.get_daily_entries()
@@ -174,5 +192,14 @@ class ItemTree(ttk.Frame):
             if (self.treeview_itemCount.exists(itemName.lower())):
                 self.treeview_itemCount.delete(itemName.lower())
             if (itemInfo['type'] == self.itemType):
-                itemValues = [sortedItems.index((itemName, itemInfo)) + 1, itemName, itemInfo['rating'].title(), itemInfo['count']]
-                self.treeview_itemCount.insert(parent = "", index = "end", iid = itemName.lower(), values = itemValues)
+                if (self.searchQuery == None or self.searchQuery.lower() in itemName.lower()):
+                    itemValues = [sortedItems.index((itemName, itemInfo)) + 1, itemName, itemInfo['rating'].title(), itemInfo['count']]
+                    self.treeview_itemCount.insert(parent = "", index = "end", iid = itemName.lower(), values = itemValues)
+
+    def submit_search_query(self, event = None):
+        query = self.entry_query.get()
+        if (query == "" or query.isspace() == True):
+            self.searchQuery = None
+        else:
+            self.searchQuery = query
+        self.add_items_to_tree()

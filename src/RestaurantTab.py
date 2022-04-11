@@ -14,8 +14,7 @@ class RestaurantTab(ttk.Frame):
 
         gridSettings = self.settings['padding'] | {'sticky' : 'w'}
 
-        #region Widget Setup
-        # New Restaurant Frame
+        #region New Restaurant Frame
         self.frame_newRestaurant = ttk.Frame(self)
         self.frame_newRestaurant.grid(row = 0, column = 0, **gridSettings)
 
@@ -47,8 +46,9 @@ class RestaurantTab(ttk.Frame):
 
         self.button_submit = ttk.Button(self.frame_newRestaurant, text = "Submit", style = "Accent.TButton", command = self.submit_new_restaurant)
         self.button_submit.grid(row = 1, column = 3, **gridSettings)
+        #endregion
 
-        # Restaurant Count Frame
+        #region Restaurant Count Frame
         self.frame_restCount = ttk.Frame(self)
         self.frame_restCount.grid(row = 1, column = 0, **gridSettings)
 
@@ -104,6 +104,23 @@ class RestaurantTree(ttk.Frame):
         self.parent = parent
 
         self.refresh_saved_info()
+        self.searchQuery = None
+
+        #region Search Bar
+        self.frame_search = ttk.Frame(self)
+        self.frame_search.grid(row = 0, column = 0, **gridSettings)
+
+        self.label_search = ttk.Label(self.frame_search, text = "Search:", font = self.settings['fonts']['bold'])
+        self.label_search.grid(row = 0, column = 0, **gridSettings)
+
+        self.entry_query = ttk.Entry(self.frame_search, font = self.settings['fonts']['default'], width = 63)
+        self.entry_query.bind("<Any-KeyRelease>", self.submit_search_query)
+        self.entry_query.grid(row = 0, column = 1, **gridSettings)
+        #endregion
+
+        #region Treeview
+        self.frame_tree = ttk.Frame(self)
+        self.frame_tree.grid(row = 1, column = 0, **gridSettings)
 
         treeviewHeaders = {
             "Index" : 50,
@@ -113,7 +130,7 @@ class RestaurantTree(ttk.Frame):
         }
 
         self.treeview_restCount = ttk.Treeview(
-            self,
+            self.frame_tree,
             columns = list(treeviewHeaders.keys()),
             height = 20,
             show = "headings"
@@ -125,11 +142,12 @@ class RestaurantTree(ttk.Frame):
         self.treeview_restCount.bind("<Expose>", self.add_restaurants_to_tree)
         self.treeview_restCount.grid(row = 0, column = 0, **gridSettings)
 
-        self.scrollbar = ttk.Scrollbar(self, orient = tk.VERTICAL, command = self.treeview_restCount.yview)
+        self.scrollbar = ttk.Scrollbar(self.frame_tree, orient = tk.VERTICAL, command = self.treeview_restCount.yview)
         self.scrollbar.grid(row = 0, column = 1, sticky = "NS")
         self.treeview_restCount.configure(yscrollcommand = self.scrollbar.set)
     
         self.add_restaurants_to_tree()
+        #endregion
     
     def refresh_saved_info(self):
         self.dailyEntries = utilities.get_daily_entries()
@@ -147,5 +165,14 @@ class RestaurantTree(ttk.Frame):
             if (self.treeview_restCount.exists(restName.lower())):
                 self.treeview_restCount.delete(restName.lower())
 
-            restValues = [sortedRest.index((restName, restInfo)) + 1, restName.title(), restInfo['rating'], restInfo['count']]
-            self.treeview_restCount.insert(parent = "", index = "end", iid = restName.lower(), values = restValues)
+            if (self.searchQuery == None or self.searchQuery in restName):
+                restValues = [sortedRest.index((restName, restInfo)) + 1, restName.title(), restInfo['rating'], restInfo['count']]
+                self.treeview_restCount.insert(parent = "", index = "end", iid = restName.lower(), values = restValues)
+    
+    def submit_search_query(self, event = None):
+        query = self.entry_query.get()
+        if (query == "" or query.isspace() == True):
+            self.searchQuery = None
+        else:
+            self.searchQuery = query
+        self.add_restaurants_to_tree()
