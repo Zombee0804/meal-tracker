@@ -186,7 +186,7 @@ class RestaurantTree(ttk.Frame):
 
         deleteItem = self.treeview_restCount.focus()
 
-        if (deleteItem.lower() == "home"):
+        if (deleteItem == "NONE"):
             messagebox.showerror("Deletion Error!", "Cannot Delete This Restaurant")
             return
 

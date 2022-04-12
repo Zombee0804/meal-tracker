@@ -107,10 +107,7 @@ class DailyTab(ttk.Frame):
             mealFrame.text_itemBox.insert(0.0, '\n'.join(dailyEntry[meal]['items']))
 
             if (meal != "Snacks"):
-                if (dailyEntry[meal]['establishment'] == "NONE"):
-                    mealFrame.combo_restaurant.set("Home")
-                else:
-                    mealFrame.combo_restaurant.set(dailyEntry[meal]['establishment'])
+                mealFrame.combo_restaurant.set(dailyEntry[meal]['establishment'])
 
             mealFrame.validate_items()
     
@@ -144,7 +141,7 @@ class MealFrame(ttk.Frame):
                 values = utilities.title_string_array(self.restaurantInfo.keys()),
                 state= "readonly"
             )
-            self.combo_restaurant.set("Home")
+            self.combo_restaurant.set("NONE")
             self.combo_restaurant.bind("<Expose>", self.update_restaurant_list)
             self.combo_restaurant.grid(row = 0, column = 1, **gridSettings)
 
@@ -257,10 +254,10 @@ class MealFrame(ttk.Frame):
         previousItemCount = self.get_item_count(previousEntry)
         
         for key, value in previousItemCount.items():
-                self.itemInfo[utilities.find_dict_key(self.itemInfo, key.lower())]['count'] -= value
+                self.itemInfo[utilities.find_dict_key(self.itemInfo, key)]['count'] -= value
         
-        if (self.labelText != "Snacks" and previousEntry['establishment'] != "NONE" and "skipped_meal" not in previousEntry['items']):
-            self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, previousEntry['establishment'].lower())]['count'] -= 1
+        if (self.labelText != "Snacks" and "skipped_meal" not in previousEntry['items']):
+            self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, previousEntry['establishment'])]['count'] -= 1
         
         # Adding Current Count
         currentEntry = self.get_meal_data()
@@ -270,7 +267,7 @@ class MealFrame(ttk.Frame):
             self.itemInfo[utilities.find_dict_key(self.itemInfo, key)]['count'] += value
         
         if (self.labelText != "Snacks" and "skipped_meal" not in currentEntry['items']):
-            self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, self.combo_restaurant.get().lower())]['count'] += 1
+            self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, self.combo_restaurant.get())]['count'] += 1
             
         utilities.save_item_info(self.itemInfo)
         utilities.save_restaurant_info(self.restaurantInfo)
