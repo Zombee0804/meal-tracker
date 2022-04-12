@@ -230,9 +230,6 @@ class MealFrame(ttk.Frame):
         else:
             self.state = "INVALID"
         
-        if (text == "" or text.isspace() == True):
-            self.state = "BLANK"
-        
         self.parent.set_spinbox_state()
         
     def get_item_count(self, mealData):
@@ -266,7 +263,7 @@ class MealFrame(ttk.Frame):
         for key, value in currentItemCount.items():
             self.itemInfo[utilities.find_dict_key(self.itemInfo, key)]['count'] += value
         
-        if (self.labelText != "Snacks" and "skipped_meal" not in currentEntry['items']):
+        if (self.labelText != "Snacks" and "skipped_meal" not in currentEntry['items'] and currentEntry['items'] != []):
             self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, self.combo_restaurant.get())]['count'] += 1
             
         utilities.save_item_info(self.itemInfo)
