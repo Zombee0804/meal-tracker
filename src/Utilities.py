@@ -72,7 +72,17 @@ def get_date_string(datetimeObject = None):
 #endregion
 
 #region Other
-# String Arrays
 lower_string_array = lambda array: [element.lower() for element in array]
 title_string_array = lambda array: [element.title() for element in array]
+
+def find_dict_key(dictionary, searchKey):
+    """Searches a dictionary for a key, regardless of character case. 
+    Returns the key as it is in the dictionary.
+    Returns 'None' if the key is not found.
+    """
+    for key, value in dictionary.items():
+        if (key.lower() == searchKey.lower()):
+            return key
+        
+    return None
 #endregion

@@ -132,7 +132,7 @@ class RestaurantTree(ttk.Frame):
         self.treeview_restCount = ttk.Treeview(
             self.frame_tree,
             columns = list(treeviewHeaders.keys()),
-            height = 20,
+            height = 10,
             show = "headings"
         )
         self.treeview_restCount.column("#0", width = 50)
@@ -140,11 +140,15 @@ class RestaurantTree(ttk.Frame):
             self.treeview_restCount.heading(header, text = header)
             self.treeview_restCount.column(header, width = columnWidth)
         self.treeview_restCount.bind("<Expose>", self.add_restaurants_to_tree)
+        self.treeview_restCount.bind("<KeyRelease-Delete>", self.delete_selected_item)
         self.treeview_restCount.grid(row = 0, column = 0, **gridSettings)
 
         self.scrollbar = ttk.Scrollbar(self.frame_tree, orient = tk.VERTICAL, command = self.treeview_restCount.yview)
         self.scrollbar.grid(row = 0, column = 1, sticky = "NS")
         self.treeview_restCount.configure(yscrollcommand = self.scrollbar.set)
+
+        self.button_delete = ttk.Button(self.frame_tree, text = "Delete", style = "Accent.TButton", command = self.delete_selected_item)
+        self.button_delete.grid(row = 1, column = 0, columnspan = 2, sticky = "E", padx = gridSettings['padx'], pady = gridSettings['pady'])
     
         self.add_restaurants_to_tree()
         #endregion
@@ -160,11 +164,11 @@ class RestaurantTree(ttk.Frame):
     
         alphaSorted = sorted(self.restaurantInfo.items(), key = lambda x:x[0], reverse = False)
         sortedRest = sorted(alphaSorted, key = lambda x:x[1]['count'], reverse = True)
+
+        for iid in self.treeview_restCount.get_children():
+            self.treeview_restCount.delete(iid)
     
         for restName, restInfo in sortedRest:
-            if (self.treeview_restCount.exists(restName.lower())):
-                self.treeview_restCount.delete(restName.lower())
-
             if (self.searchQuery == None or self.searchQuery in restName):
                 restValues = [sortedRest.index((restName, restInfo)) + 1, restName.title(), restInfo['rating'], restInfo['count']]
                 self.treeview_restCount.insert(parent = "", index = "end", iid = restName.lower(), values = restValues)
@@ -175,4 +179,27 @@ class RestaurantTree(ttk.Frame):
             self.searchQuery = None
         else:
             self.searchQuery = query
+        self.add_restaurants_to_tree()
+
+    def delete_selected_item(self, event = None):
+        self.refresh_saved_info()
+
+        deleteItem = self.treeview_restCount.focus()
+
+        if (deleteItem.lower() == "home"):
+            messagebox.showerror("Deletion Error!", "Cannot Delete This Restaurant")
+            return
+
+        if (deleteItem != "" and deleteItem.isspace() == False):
+            for date, entry in self.dailyEntries.items():
+                for mealName, mealInfo in entry.items():                    
+                    if ('establishment' in mealInfo.keys()):
+                        if (mealInfo['establishment'].lower() == deleteItem.lower()):
+                            mealInfo['establishment'] = "NONE"
+        
+        self.restaurantInfo.pop(utilities.find_dict_key(self.restaurantInfo, deleteItem))
+
+        utilities.save_daily_entries(self.dailyEntries)
+        utilities.save_restaurant_info(self.restaurantInfo)
+
         self.add_restaurants_to_tree()

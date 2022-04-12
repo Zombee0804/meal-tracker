@@ -58,6 +58,7 @@ class DailyTab(ttk.Frame):
         #endregion
     
         self.update_daily()
+        self.bind("<Expose>", self.update_daily)
 
     def refresh_saved_info(self):
         self.dailyEntries = utilities.get_daily_entries()
@@ -85,7 +86,7 @@ class DailyTab(ttk.Frame):
 
         messagebox.showinfo("Saved", "Daily Entry Saved")
     
-    def update_daily(self):
+    def update_daily(self, event = None):
         dailyEntries = utilities.get_daily_entries()
         dateKey = self.spinbox_dates.get()
 
@@ -144,6 +145,7 @@ class MealFrame(ttk.Frame):
                 state= "readonly"
             )
             self.combo_restaurant.set("Home")
+            self.combo_restaurant.bind("<Expose>", self.update_restaurant_list)
             self.combo_restaurant.grid(row = 0, column = 1, **gridSettings)
 
         self.text_itemBox = tk.Text(self, height = 17, width = 105, foreground = "#DD5555")
@@ -265,10 +267,14 @@ class MealFrame(ttk.Frame):
         currentItemCount = self.get_item_count(currentEntry)
 
         for key, value in currentItemCount.items():
-            self.itemInfo[key]['count'] += value
+            self.itemInfo[utilities.find_dict_key(self.itemInfo, key)]['count'] += value
         
         if (self.labelText != "Snacks" and "skipped_meal" not in currentEntry['items']):
             self.restaurantInfo[self.combo_restaurant.get().lower()]['count'] += 1
             
         utilities.save_item_info(self.itemInfo)
         utilities.save_restaurant_info(self.restaurantInfo)
+    
+    def update_restaurant_list(self, event = None):
+        self.refresh_saved_info()
+        self.combo_restaurant.configure(values = utilities.title_string_array(self.restaurantInfo.keys()))

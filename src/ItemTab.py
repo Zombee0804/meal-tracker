@@ -160,7 +160,7 @@ class ItemTree(ttk.Frame):
         self.treeview_itemCount = ttk.Treeview(
             self.frame_tree, 
             columns = list(treeviewHeaders.keys()), 
-            height = 20,
+            height = 10,
             show = "headings"
         )
         self.treeview_itemCount.column("#0", width = 50)
@@ -168,11 +168,15 @@ class ItemTree(ttk.Frame):
             self.treeview_itemCount.heading(header, text = header)
             self.treeview_itemCount.column(header, width = columnWidth)
         self.treeview_itemCount.bind("<Expose>", self.add_items_to_tree)
+        self.treeview_itemCount.bind("<KeyRelease-Delete>", self.delete_selected_item)
         self.treeview_itemCount.grid(row = 0, column = 0, **gridSettings)
 
         self.scrollbar = ttk.Scrollbar(self.frame_tree, orient = tk.VERTICAL, command = self.treeview_itemCount.yview)
         self.scrollbar.grid(row = 0, column = 1, sticky = "NS")
         self.treeview_itemCount.configure(yscrollcommand = self.scrollbar.set)
+
+        self.button_delete = ttk.Button(self.frame_tree, text = "Delete", style = "Accent.TButton", command = self.delete_selected_item)
+        self.button_delete.grid(row = 1, column = 0, columnspan = 2, sticky = "E", padx = gridSettings['padx'], pady = gridSettings['pady'])
 
         self.add_items_to_tree()
         #endregion
@@ -188,9 +192,10 @@ class ItemTree(ttk.Frame):
         alphaSorted = sorted(self.itemInfo.items(), key = lambda x:x[0], reverse = False)
         sortedItems = sorted(alphaSorted, key = lambda x:x[1]['count'], reverse = True)
 
+        for iid in self.treeview_itemCount.get_children():
+            self.treeview_itemCount.delete(iid)
+
         for itemName, itemInfo in sortedItems:
-            if (self.treeview_itemCount.exists(itemName.lower())):
-                self.treeview_itemCount.delete(itemName.lower())
             if (itemInfo['type'] == self.itemType):
                 if (self.searchQuery == None or self.searchQuery.lower() in itemName.lower()):
                     itemValues = [sortedItems.index((itemName, itemInfo)) + 1, itemName, itemInfo['rating'].title(), itemInfo['count']]
@@ -202,4 +207,27 @@ class ItemTree(ttk.Frame):
             self.searchQuery = None
         else:
             self.searchQuery = query
+        self.add_items_to_tree()
+    
+    def delete_selected_item(self, event = None):
+        self.refresh_saved_info()
+
+        deleteItem = self.treeview_itemCount.focus()
+
+        if (deleteItem.lower() == "skipped_meal"):
+            messagebox.showerror("Deletion Error!", "Cannot Delete This Item")
+            return
+
+        if (deleteItem != "" and deleteItem.isspace() == False):
+            for date, entry in self.dailyEntries.items():
+                for mealName, mealInfo in entry.items():
+                    for index, mealItem in enumerate(mealInfo['items']):
+                        if (mealItem.lower() == deleteItem.lower()):
+                            mealInfo['items'].pop(index)
+        
+        self.itemInfo.pop(utilities.find_dict_key(self.itemInfo, deleteItem))
+        
+        utilities.save_daily_entries(self.dailyEntries)
+        utilities.save_item_info(self.itemInfo)
+
         self.add_items_to_tree()
