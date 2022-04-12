@@ -257,10 +257,10 @@ class MealFrame(ttk.Frame):
         previousItemCount = self.get_item_count(previousEntry)
         
         for key, value in previousItemCount.items():
-                self.itemInfo[key]['count'] -= value
+                self.itemInfo[utilities.find_dict_key(self.itemInfo, key.lower())]['count'] -= value
         
         if (self.labelText != "Snacks" and previousEntry['establishment'] != "NONE" and "skipped_meal" not in previousEntry['items']):
-            self.restaurantInfo[previousEntry['establishment'].lower()]['count'] -= 1
+            self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, previousEntry['establishment'].lower())]['count'] -= 1
         
         # Adding Current Count
         currentEntry = self.get_meal_data()
@@ -270,7 +270,7 @@ class MealFrame(ttk.Frame):
             self.itemInfo[utilities.find_dict_key(self.itemInfo, key)]['count'] += value
         
         if (self.labelText != "Snacks" and "skipped_meal" not in currentEntry['items']):
-            self.restaurantInfo[self.combo_restaurant.get().lower()]['count'] += 1
+            self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, self.combo_restaurant.get().lower())]['count'] += 1
             
         utilities.save_item_info(self.itemInfo)
         utilities.save_restaurant_info(self.restaurantInfo)
