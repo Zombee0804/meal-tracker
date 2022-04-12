@@ -186,7 +186,7 @@ class RestaurantTree(ttk.Frame):
 
         deleteItem = self.treeview_restCount.focus()
 
-        if (deleteItem == "NONE"):
+        if (deleteItem == "none"):
             messagebox.showerror("Deletion Error!", "Cannot Delete This Restaurant")
             return
 
@@ -195,7 +195,8 @@ class RestaurantTree(ttk.Frame):
                 for mealName, mealInfo in entry.items():                    
                     if ('establishment' in mealInfo.keys()):
                         if (mealInfo['establishment'].lower() == deleteItem.lower()):
-                            mealInfo['establishment'] = "NONE"
+                            mealInfo['establishment'] = "None"
+                            self.restaurantInfo['None']['count'] += 1
         
         self.restaurantInfo.pop(utilities.find_dict_key(self.restaurantInfo, deleteItem))
 

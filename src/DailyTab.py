@@ -92,9 +92,9 @@ class DailyTab(ttk.Frame):
 
         if (dateKey not in dailyEntries.keys()):
             dailyEntries[dateKey] = {
-                "Breakfast" : {'items' : [], 'establishment' : "NONE"},
-                "Lunch" : {'items' : [], 'establishment' : "NONE"},
-                "Dinner" : {'items' : [], 'establishment' : "NONE"},
+                "Breakfast" : {'items' : [], 'establishment' : "None"},
+                "Lunch" : {'items' : [], 'establishment' : "None"},
+                "Dinner" : {'items' : [], 'establishment' : "None"},
                 "Snacks" : {'items' : []}
             }
             utilities.save_daily_entries(dailyEntries)
@@ -141,7 +141,7 @@ class MealFrame(ttk.Frame):
                 values = utilities.title_string_array(self.restaurantInfo.keys()),
                 state= "readonly"
             )
-            self.combo_restaurant.set("NONE")
+            self.combo_restaurant.set("None")
             self.combo_restaurant.bind("<Expose>", self.update_restaurant_list)
             self.combo_restaurant.grid(row = 0, column = 1, **gridSettings)
 
@@ -256,7 +256,7 @@ class MealFrame(ttk.Frame):
         for key, value in previousItemCount.items():
                 self.itemInfo[utilities.find_dict_key(self.itemInfo, key)]['count'] -= value
         
-        if (self.labelText != "Snacks" and "skipped_meal" not in previousEntry['items']):
+        if (self.labelText != "Snacks" and "skipped_meal" not in previousEntry['items'] and previousEntry['items'] != []):
             self.restaurantInfo[utilities.find_dict_key(self.restaurantInfo, previousEntry['establishment'])]['count'] -= 1
         
         # Adding Current Count

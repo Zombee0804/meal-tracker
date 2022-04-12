@@ -26,7 +26,7 @@ get_item_info = lambda: read_json(
 )
 save_item_info = lambda itemInfo: write_json("itemInfo.json", itemInfo)
 
-get_restaurant_info = lambda: read_json("restaurantInfo.json", {"NONE" : {"rating": "none", "count" : 0, "startingCount" : 0}})
+get_restaurant_info = lambda: read_json("restaurantInfo.json", {"None" : {"rating": "none", "count" : 0, "startingCount" : 0}})
 save_restaurant_info = lambda restaurantInfo: write_json("restaurantInfo.json", restaurantInfo)
 
 # Methods
