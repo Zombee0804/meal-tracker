@@ -169,7 +169,7 @@ class RestaurantTree(ttk.Frame):
             self.treeview_restCount.delete(iid)
     
         for restName, restInfo in sortedRest:
-            if (self.searchQuery == None or self.searchQuery in restName):
+            if (self.searchQuery == None or self.searchQuery.lower() in restName.lower()):
                 restValues = [sortedRest.index((restName, restInfo)) + 1, restName.title(), restInfo['rating'], restInfo['count']]
                 self.treeview_restCount.insert(parent = "", index = "end", iid = restName.lower(), values = restValues)
     
