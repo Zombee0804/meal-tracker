@@ -85,4 +85,22 @@ def find_dict_key(dictionary, searchKey):
             return key
         
     return None
+
+def list_replace(l, old, new):
+    """Replaces all elements that match 'old' with 'new'"""
+
+    for index, item in enumerate(l):
+        if (item == old):
+            l.pop(index)
+            l.insert(index, new)
+    
+    return l
+
+def is_element_in_list(l, element):
+    """'In' keyword but ignores case"""
+    for item in l:
+        if (item.lower() == element.lower()):
+            return True
+    return False
+
 #endregion

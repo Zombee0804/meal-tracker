@@ -14,9 +14,11 @@ class ItemTab(ttk.Frame):
 
         gridSettings = self.settings['padding'] | {'sticky' : 'w'}
 
-        #region Widget Setup
-        # New Item Frame
-        self.frame_newItem = ttk.Frame(self)
+        style_labelFrame = ttk.Style(self)
+        style_labelFrame.configure("TLabelframe.Label", font = self.settings['fonts']['header'], background = "#1c1c1c")
+
+        #region New Item Frame
+        self.frame_newItem = ttk.LabelFrame(self, text = " New Item ")
         self.frame_newItem.grid(row = 0, column = 0, **gridSettings)
 
         self.label_name = ttk.Label(self.frame_newItem, text = "Item Name:", font = self.settings['fonts']['bold'])
@@ -28,7 +30,7 @@ class ItemTab(ttk.Frame):
         self.label_type = ttk.Label(self.frame_newItem, text = "Type:", font = self.settings['fonts']['bold'])
         self.label_type.grid(row = 0, column = 1, **gridSettings)
 
-        #region Item Type Selection
+        #region Item Type
         self.frame_itemType = ttk.Frame(self.frame_newItem)
         self.frame_itemType.grid(row = 1, column = 1, **gridSettings)
 
@@ -38,7 +40,7 @@ class ItemTab(ttk.Frame):
         self.radio_food.grid(row = 0, column = 0, **gridSettings)
 
         self.radio_drink = ttk.Radiobutton(self.frame_itemType, text = "Drink", variable = self.var_itemType, value = "drink")
-        self.radio_drink.grid(row = 1, column = 0, **gridSettings)
+        self.radio_drink.grid(row = 0, column = 1, **gridSettings)
         #endregion
 
         self.label_rating = ttk.Label(self.frame_newItem, text = "Rating:", font = self.settings['fonts']['bold'])
@@ -61,17 +63,41 @@ class ItemTab(ttk.Frame):
         self.spinbox_startingCount.set(0)
         self.spinbox_startingCount.grid(row = 1, column = 4, **gridSettings)
 
-        self.button_submit = ttk.Button(self.frame_newItem, text = "Submit", style = "Accent.TButton", command = self.submit_new_item)
-        self.button_submit.grid(row = 1, column = 5, **gridSettings)
+        self.button_itemSubmit = ttk.Button(self.frame_newItem, text = "Submit", style = "Accent.TButton", command = self.submit_new_item)
+        self.button_itemSubmit.grid(row = 1, column = 5, **gridSettings)
+        #endregion
 
-        # Item Count Frame
-        self.frame_itemCount = ttk.Frame(self)
-        self.frame_itemCount.grid(row = 1, column = 0, **gridSettings)
+        #region Editing Item Frame
+        self.frame_edit = ttk.LabelFrame(self, text = " Edit Item ")
+        self.frame_edit.grid(row = 1, column = 0, **gridSettings)
 
-        self.frame_foodTree = ItemTree(self.frame_itemCount, "food", gridSettings)
+        self.label_currentName = ttk.Label(self.frame_edit, text = "Current Name:", font = self.settings['fonts']['bold'])
+        self.label_currentName.grid(row = 0, column = 0, **gridSettings)
+
+        self.entry_currentName = ttk.Entry(self.frame_edit, font = self.settings['fonts']['default'], width = 50)
+        self.entry_currentName.grid(row = 1, column = 0, **gridSettings)
+
+        self.label_arrow = ttk.Label(self.frame_edit, text = "-->", font = self.settings['fonts']['default'])
+        self.label_arrow.grid(row = 1, column = 1, **gridSettings)
+
+        self.label_newName = ttk.Label(self.frame_edit, text = "New Name:", font = self.settings['fonts']['bold'])
+        self.label_newName.grid(row = 0, column = 2, **gridSettings)
+
+        self.entry_newName = ttk.Entry(self.frame_edit, font = self.settings['fonts']['default'], width = 50)
+        self.entry_newName.grid(row = 1, column = 2, **gridSettings)
+
+        self.button_editSubmit = ttk.Button(self.frame_edit, text = "Submit", style = "Accent.TButton", command = self.submit_item_edit)
+        self.button_editSubmit.grid(row = 1, column = 3, **gridSettings)
+        #endregion
+
+        #region Item Count Frame
+        self.frame_itemCount = ttk.LabelFrame(self, text = " Item Counts ")
+        self.frame_itemCount.grid(row = 2, column = 0, **gridSettings)
+
+        self.frame_foodTree = ItemTree(self.frame_itemCount, self, "food", gridSettings)
         self.frame_foodTree.grid(row = 0, column = 0, **gridSettings)
 
-        self.frame_drinkTree = ItemTree(self.frame_itemCount, "drink", gridSettings)
+        self.frame_drinkTree = ItemTree(self.frame_itemCount, self, "drink", gridSettings)
         self.frame_drinkTree.grid(row = 0, column = 1, **gridSettings)
         #endregion
 
@@ -125,11 +151,55 @@ class ItemTab(ttk.Frame):
         self.spinbox_rating.set("Okay")
         self.spinbox_startingCount.set(0)
 
+    def update_edit_box(self, treeFrame):
+        focusItem = treeFrame.treeview_itemCount.focus()
+        if (focusItem != "skipped_meal"):
+            self.entry_currentName.delete(0, tk.END)
+            self.entry_currentName.insert(0, utilities.find_dict_key(self.itemInfo, treeFrame.treeview_itemCount.focus()))
+   
+    def submit_item_edit(self):
+        currentName = self.entry_currentName.get()
+        newName = self.entry_newName.get()
+        if (currentName == "" or currentName.isspace() == True or newName == "" or newName.isspace() == True):
+            messagebox.showerror("Item Edit Error", "Edit Information Empty")
+            return
+        
+        self.refresh_saved_info()
+
+        if (utilities.is_element_in_list(self.itemInfo.keys(), currentName) == False):
+            messagebox.showerror("Item Edit Error", "Item Not Found")
+            return
+        
+        currentName = utilities.find_dict_key(self.itemInfo, currentName)
+        itemInformation = self.itemInfo[currentName]
+        self.itemInfo.pop(currentName)
+        self.itemInfo[newName] = itemInformation
+
+        for date, entries in self.dailyEntries.items():
+            for meal, entry in entries.items():
+                if (utilities.is_element_in_list(entry['items'], currentName)):
+                    entry['items'] = utilities.list_replace(entry['items'], currentName, newName)
+        
+        utilities.save_item_info(self.itemInfo)
+        utilities.save_daily_entries(self.dailyEntries)
+
+        messagebox.showinfo("Edit Complete", "Edit Complete!")
+
+        self.entry_currentName.delete(0, tk.END)
+        self.entry_newName.delete(0, tk.END)
+
+        itemType = self.itemInfo[newName]['type']
+        if (itemType == "food"):
+            self.frame_foodTree.add_items_to_tree()
+        elif (itemType == "drink"):
+            self.frame_drinkTree.add_items_to_tree()
+
 class ItemTree(ttk.Frame):
 
-    def __init__(self, parent, itemType, gridSettings):
+    def __init__(self, parent, root, itemType, gridSettings):
         super().__init__(parent)
         self.parent = parent
+        self.root = root
         self.itemType = itemType
 
         self.refresh_saved_info()
@@ -169,6 +239,7 @@ class ItemTree(ttk.Frame):
             self.treeview_itemCount.column(header, width = columnWidth)
         self.treeview_itemCount.bind("<Expose>", self.add_items_to_tree)
         self.treeview_itemCount.bind("<KeyRelease-Delete>", self.delete_selected_item)
+        self.treeview_itemCount.bind("<ButtonRelease>", lambda e: self.root.update_edit_box(self))
         self.treeview_itemCount.grid(row = 0, column = 0, **gridSettings)
 
         self.scrollbar = ttk.Scrollbar(self.frame_tree, orient = tk.VERTICAL, command = self.treeview_itemCount.yview)

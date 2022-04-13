@@ -1,7 +1,8 @@
 {
     "fonts" : {
         "default" : ["Segoe Ui", 12],
-        "bold" : ["Segoe Ui bold", 12]
+        "bold" : ["Segoe Ui bold", 12],
+        "header" : ["Segoe Ui", 16, "bold underline"]
     },
     "padding" : {
         "padx": 5,

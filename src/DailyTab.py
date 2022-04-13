@@ -19,7 +19,7 @@ class DailyTab(ttk.Frame):
         self.frame_dateSelection = ttk.Frame(self)
         self.frame_dateSelection.grid(row = 0, column = 0, columnspan = 2, **gridSettings)
 
-        self.label_dates = ttk.Label(self.frame_dateSelection, text = "Date: ", font = self.settings['fonts']['bold'])
+        self.label_dates = ttk.Label(self.frame_dateSelection, text = "Date:", font = self.settings['fonts']['bold'])
         self.label_dates.grid(row = 0, column = 0, **gridSettings)
         
         dates = utilities.get_date_list()
