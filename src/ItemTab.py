@@ -191,14 +191,15 @@ class ItemTree(ttk.Frame):
         self.refresh_saved_info()
         alphaSorted = sorted(self.itemInfo.items(), key = lambda x:x[0], reverse = False)
         sortedItems = sorted(alphaSorted, key = lambda x:x[1]['count'], reverse = True)
+        filteredItems = [i for i in sortedItems if i[1]['type'] == self.itemType]
 
         for iid in self.treeview_itemCount.get_children():
             self.treeview_itemCount.delete(iid)
 
-        for itemName, itemInfo in sortedItems:
+        for itemName, itemInfo in filteredItems:
             if (itemInfo['type'] == self.itemType):
                 if (self.searchQuery == None or self.searchQuery.lower() in itemName.lower()):
-                    itemValues = [sortedItems.index((itemName, itemInfo)) + 1, itemName, itemInfo['rating'].title(), itemInfo['count']]
+                    itemValues = [filteredItems.index((itemName, itemInfo)) + 1, itemName, itemInfo['rating'].title(), itemInfo['count']]
                     self.treeview_itemCount.insert(parent = "", index = "end", iid = itemName.lower(), values = itemValues)
 
     def submit_search_query(self, event = None):
