@@ -52,8 +52,11 @@ class RestaurantTab(ttk.Frame):
         self.frame_restCount = ttk.Frame(self)
         self.frame_restCount.grid(row = 1, column = 0, **gridSettings)
 
+        self.button_recount = ttk.Button(self.frame_restCount, text = "Recount Restaurants", command = self.force_recount)
+        self.button_recount.grid(row = 0, column = 0, padx = gridSettings['padx'] * 3, pady = gridSettings['pady'], sticky = gridSettings['sticky'])
+
         self.frame_restTree = RestaurantTree(self.frame_restCount, gridSettings)
-        self.frame_restTree.grid(row = 0, column = 0, **gridSettings)
+        self.frame_restTree.grid(row = 1, column = 0, **gridSettings)
         #endregion
 
     def refresh_saved_info(self):
@@ -96,6 +99,25 @@ class RestaurantTab(ttk.Frame):
         self.entry_name.delete(0, tk.END)
         self.spinbox_rating.set("Okay")
         self.spinbox_startingCount.set(0)
+
+    def force_recount(self, event = None):
+        self.refresh_saved_info()
+
+        newCount = {key:0 for (key, value) in self.restaurantInfo.items()}
+
+        for restaurantName in newCount.keys():
+            for date, entries in self.dailyEntries.items():
+                for meal, entry in entries.items():
+                    if ('establishment' in entry.keys()):
+                        if (entry['establishment'].lower() == restaurantName.lower()):
+                            newCount[restaurantName] += 1
+
+        for restName, restInfo in self.restaurantInfo.items():
+            self.restaurantInfo[restName]['count'] = newCount[restName] + restInfo['startingCount']
+        
+        utilities.save_restaurant_info(self.restaurantInfo)
+
+        self.frame_restTree.add_restaurants_to_tree()
 
 class RestaurantTree(ttk.Frame):
 
@@ -170,7 +192,7 @@ class RestaurantTree(ttk.Frame):
     
         for restName, restInfo in sortedRest:
             if (self.searchQuery == None or self.searchQuery.lower() in restName.lower()):
-                restValues = [sortedRest.index((restName, restInfo)) + 1, restName.title(), restInfo['rating'], restInfo['count']]
+                restValues = [sortedRest.index((restName, restInfo)) + 1, restName, restInfo['rating'], restInfo['count']]
                 self.treeview_restCount.insert(parent = "", index = "end", iid = restName.lower(), values = restValues)
     
     def submit_search_query(self, event = None):
