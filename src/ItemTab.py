@@ -95,10 +95,13 @@ class ItemTab(ttk.Frame):
         self.frame_itemCount.grid(row = 2, column = 0, **gridSettings)
 
         self.frame_foodTree = ItemTree(self.frame_itemCount, self, "food", gridSettings)
-        self.frame_foodTree.grid(row = 0, column = 0, **gridSettings)
+        self.frame_foodTree.grid(row = 1, column = 0, **gridSettings)
 
         self.frame_drinkTree = ItemTree(self.frame_itemCount, self, "drink", gridSettings)
-        self.frame_drinkTree.grid(row = 0, column = 1, **gridSettings)
+        self.frame_drinkTree.grid(row = 1, column = 1, **gridSettings)
+
+        self.button_recount = ttk.Button(self.frame_itemCount, text = "Recount Items", command = self.force_recount)
+        self.button_recount.grid(row = 0, column = 0, padx = gridSettings['padx'] * 3, pady = gridSettings['pady'], sticky = gridSettings['sticky'])
         #endregion
 
     def refresh_saved_info(self):
@@ -193,6 +196,24 @@ class ItemTab(ttk.Frame):
             self.frame_foodTree.add_items_to_tree()
         elif (itemType == "drink"):
             self.frame_drinkTree.add_items_to_tree()
+    
+    def force_recount(self, event = None):
+        self.refresh_saved_info()
+
+        newCount = {key:0 for (key, value) in self.itemInfo.items()}
+
+        for itemName in newCount.keys():
+            for date, entries in self.dailyEntries.items():
+                for meal, entry in entries.items():
+                    newCount[itemName] += utilities.element_count_in_list(entry['items'], itemName)
+        
+        for item, itemData in self.itemInfo.items():
+            self.itemInfo[item]['count'] = newCount[item] + self.itemInfo[item]['startingCount']
+        
+        utilities.save_item_info(self.itemInfo)
+
+        self.frame_foodTree.add_items_to_tree()
+        self.frame_drinkTree.add_items_to_tree()
 
 class ItemTree(ttk.Frame):
 
@@ -230,7 +251,7 @@ class ItemTree(ttk.Frame):
         self.treeview_itemCount = ttk.Treeview(
             self.frame_tree, 
             columns = list(treeviewHeaders.keys()), 
-            height = 10,
+            height = 9,
             show = "headings"
         )
         self.treeview_itemCount.column("#0", width = 50)

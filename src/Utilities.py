@@ -103,4 +103,12 @@ def is_element_in_list(l, element):
             return True
     return False
 
+def element_count_in_list(l, element):
+    """list.count() method but ignore case"""
+    count = 0
+    for item in l:
+        if (item.lower() == element.lower()):
+            count += 1
+    return count
+
 #endregion
