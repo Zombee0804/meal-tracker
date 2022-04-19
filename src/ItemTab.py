@@ -134,6 +134,7 @@ class ItemTab(ttk.Frame):
         return True
     
     def submit_new_item(self):
+        self.refresh_saved_info()
         isNewItemValid = self.validate_new_item()
         if (isNewItemValid == True):
             itemName, itemInfo = self.get_new_item_info()
