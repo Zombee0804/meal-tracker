@@ -83,6 +83,8 @@ class RestaurantTab(ttk.Frame):
         return True
     
     def submit_new_restaurant(self):
+        self.refresh_saved_info()
+
         isNewRestValid = self.validate_new_restaurant()
         if (isNewRestValid == True):
             restName, restInfo = self.get_new_restaurant_info()
