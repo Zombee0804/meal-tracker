@@ -12,7 +12,7 @@ class ItemTab(ttk.Frame):
 
         self.refresh_saved_info()
 
-        gridSettings = self.settings['padding'] | {'sticky' : 'w'}
+        gridSettings = self.settings['padding'] | {'sticky' : 'nw'}
 
         style_labelFrame = ttk.Style(self)
         style_labelFrame.configure("TLabelframe.Label", font = self.settings['fonts']['header'], background = "#1c1c1c")

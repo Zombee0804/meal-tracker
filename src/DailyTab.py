@@ -128,15 +128,18 @@ class MealFrame(ttk.Frame):
 
         self.refresh_saved_info()
 
-        self.label_title = ttk.Label(self, text = labelText, font = self.settings['fonts']['bold'])
-        if (self.labelText != "Snacks"):
-            self.label_title.grid(row = 0, column = 0, **gridSettings)
-        else:
-            self.label_title.grid(row = 0, column = 0, sticky = "w", padx = gridSettings['padx'], pady = gridSettings['pady'] + 8)
+        self.label_title = ttk.Label(self, text = labelText, font = self.settings['fonts']['header'])
+        self.label_title.grid(row = 0, column = 0, padx = 0, pady = 15, sticky = gridSettings['sticky'])
 
         if (labelText != "Snacks"):
+            self.frame_restaurant = ttk.Frame(self)
+            self.frame_restaurant.grid(row = 0, column = 1, **gridSettings)
+
+            self.label_restaurant = ttk.Label(self.frame_restaurant, text = "Restaurant:", font = self.settings['fonts']['bold'])
+            self.label_restaurant.grid(row = 0, column = 0, padx = gridSettings['padx'], pady = gridSettings['pady']*2, sticky = 'w')
+
             self.combo_restaurant = ttk.Combobox(
-                self, 
+                self.frame_restaurant, 
                 font = self.settings['fonts']['default'], 
                 values = utilities.title_string_array(self.restaurantInfo.keys()),
                 state= "readonly"
@@ -145,9 +148,9 @@ class MealFrame(ttk.Frame):
             self.combo_restaurant.bind("<Expose>", self.update_restaurant_list)
             self.combo_restaurant.grid(row = 0, column = 1, **gridSettings)
 
-        self.text_itemBox = tk.Text(self, height = 17, width = 105, foreground = "#DD5555")
+        self.text_itemBox = tk.Text(self, height = 14, width = 105, foreground = "#DD5555")
         self.text_itemBox.bind("<Any-KeyRelease>", self.validate_items)
-        self.text_itemBox.grid(row = 1, column = 0, columnspan = 3, **gridSettings)
+        self.text_itemBox.grid(row = 1, column = 0, columnspan = 2, **gridSettings)
 
         self.state = "INVALID"
     

@@ -12,10 +12,13 @@ class RestaurantTab(ttk.Frame):
 
         self.refresh_saved_info()
 
-        gridSettings = self.settings['padding'] | {'sticky' : 'w'}
+        gridSettings = self.settings['padding'] | {'sticky' : 'nw'}
+
+        style_labelFrame = ttk.Style(self)
+        style_labelFrame.configure("TLabelframe.Label", font = self.settings['fonts']['header'], background = "#1c1c1c")
 
         #region New Restaurant Frame
-        self.frame_newRestaurant = ttk.Frame(self)
+        self.frame_newRestaurant = ttk.LabelFrame(self, text = " New Restaurant ")
         self.frame_newRestaurant.grid(row = 0, column = 0, **gridSettings)
 
         self.label_name = ttk.Label(self.frame_newRestaurant, text = "Restaurant Name:", font = self.settings['fonts']['bold'])
@@ -49,7 +52,7 @@ class RestaurantTab(ttk.Frame):
         #endregion
 
         #region Restaurant Count Frame
-        self.frame_restCount = ttk.Frame(self)
+        self.frame_restCount = ttk.LabelFrame(self, text = " Restaurant Counts ")
         self.frame_restCount.grid(row = 1, column = 0, **gridSettings)
 
         self.button_recount = ttk.Button(self.frame_restCount, text = "Recount Restaurants", command = self.force_recount)
