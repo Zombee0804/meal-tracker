@@ -114,7 +114,7 @@ class RestaurantTab(ttk.Frame):
             for date, entries in self.dailyEntries.items():
                 for meal, entry in entries.items():
                     if ('establishment' in entry.keys()):
-                        if (entry['establishment'].lower() == restaurantName.lower()):
+                        if (entry['establishment'].lower() == restaurantName.lower() and entry['items'] != [] and utilities.is_element_in_list(entry['items'], "skipped_meal") == False):
                             newCount[restaurantName] += 1
 
         for restName, restInfo in self.restaurantInfo.items():
